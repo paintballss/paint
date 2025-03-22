@@ -1,0 +1,275 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Corpo e container principal */
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background: #121212; /* Fundo escuro */
+  color: #fff;
+  line-height: 1.6;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  margin: 50px auto;
+  background: linear-gradient(135deg, #232323, #292929); /* Gradiente suave */
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: relative;
+  border: 1px solid #3a3a3a; /* Linha suave */
+}
+
+/* Título */
+h1 {
+  text-align: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #00c7ff; /* Azul suave */
+  text-shadow: 0 0 10px #00c7ff, 0 0 20px #00c7ff;
+  margin-bottom: 30px;
+}
+
+/* Layout principal em duas colunas */
+.main-content {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Painel Esquerdo (Canvas) */
+.left-panel {
+  flex: 2;
+  background: #1d1d1d;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+/* Canvas */
+.canvas-container {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+canvas {
+  border: 2px solid #3a3a3a; /* Borda suave */
+  background-color: #1d1d1d;
+  width: 100%;
+  max-width: 800px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+}
+
+.download-area {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* Botão de Estilo Moderno */
+.button-27 {
+  appearance: none;
+  background: linear-gradient(135deg, #0072ff, #00c7ff);
+  border: 2px solid transparent;
+  border-radius: 50px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 18px 30px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  min-width: 200px;
+  margin: 10px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.button-27:hover {
+  background: linear-gradient(135deg, #00c7ff, #0072ff); /* Efeito hover suave */
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+}
+
+.button-27:active {
+  background: linear-gradient(135deg, #00bfff, #0072ff);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+.button-27:disabled {
+  pointer-events: none;
+  background-color: #444;
+  color: #aaa;
+  border: 2px solid #444;
+}
+
+/* Botões de "Escolher Arquivo" e "Restaurar Imagem" */
+input[type="file"] {
+  background: #2b2b2b;
+  color: #fff;
+  padding: 10px 20px;
+  border: 2px solid #444;
+  border-radius: 10px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+input[type="file"]:hover {
+  border-color: #00c7ff;
+}
+
+#reset {
+  background: #ff4f4f;
+  color: white;
+  font-weight: bold;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+#reset:hover {
+  background: #ff7f7f;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#reset:active {
+  background: #ff3333;
+}
+
+#reset:disabled {
+  pointer-events: none;
+  background-color: #bbb;
+  color: #777;
+}
+
+/* Painel Direito (Ferramentas) */
+.right-panel {
+  flex: 1;
+  background: #1d1d1d;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Seção de Ferramentas */
+.tool-section {
+  background: #2b2b2b;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.tool-section h2 {
+  font-size: 1.5rem;
+  color: #00c7ff;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Grupos de entrada e controles */
+.edit-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.edit-group label {
+  font-size: 16px;
+  color: #bbb;
+  font-weight: 500;
+}
+
+.edit-group input[type="number"],
+.edit-group input[type="text"],
+.edit-group input[type="color"],
+.edit-group input[type="range"],
+.edit-group select {
+  padding: 12px;
+  border: 2px solid #444;
+  border-radius: 10px;
+  width: 100%;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: #333;
+  color: #fff;
+}
+
+.edit-group input[type="number"]:focus,
+.edit-group input[type="text"]:focus,
+.edit-group input[type="color"]:focus,
+.edit-group input[type="range"]:focus,
+.edit-group select:focus {
+  border-color: #00c7ff;
+  outline: none;
+}
+
+/* Status */
+#statusMsg {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #e74c3c;
+}
+
+/* Área de download */
+#serverDownloadLink {
+  font-size: 16px;
+  color: #00c7ff;
+  margin-top: 10px;
+  font-weight: 600;
+  text-decoration: underline;
+  transition: all 0.3s ease;
+}
+
+#serverDownloadLink:hover {
+  color: #ff0080;
+}
+
+/* Responsividade para dispositivos menores */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .left-panel, .right-panel {
+    flex: 1;
+    padding: 20px;
+  }
+
+  .tool-section {
+    padding: 20px;
+  }
+
+  .button-27 {
+    min-width: 100%;
+  }
+}

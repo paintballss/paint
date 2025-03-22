@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Imagens</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>Editor de Imagens</h1>
+    <div class="main-content">
+      <!-- Painel Esquerdo: Canvas -->
+      <div class="left-panel">
+        <div class="canvas-container">
+          <canvas id="canvas" width="800" height="600"></canvas>
+        </div>
+        <div class="download-area">
+          <button class="button-27" onclick="downloadCanvas()">Download</button>
+        </div>
+      </div>
+
+      <!-- Painel Direito: Ferramentas -->
+      <div class="right-panel">
+        <!-- Carregar e Criar Imagem -->
+        <div class="tool-section">
+          <h2>Carregar / Criar</h2>
+          <input type="file" id="fileInput" accept="image/">
+          <button class="button-27" onclick="createNewImage()">Nova Imagem</button>
+        </div>
+
+        <!-- Desenho e Edição (ferramentas estilo Paint) -->
+        <div class="tool-section">
+          <h2>Desenho</h2>
+          <select id="toolSelect">
+            <option value="pencil">Lápis (livre)</option>
+            <option value="rectangle">Retângulo</option>
+            <option value="circle">Círculo</option>
+            <option value="text">Texto</option>
+          </select>
+          <input type="color" id="colorPicker" value="#000000">
+          <input type="number" id="lineWidth" value="2" min="1" max="50">
+          <input type="text" id="textInput" placeholder="Digite o texto">
+          <button class="button-27" onclick="clearCanvas()">Limpar</button>
+        </div>
+
+        <!-- Edição de Imagem -->
+        <div class="tool-section">
+          <h2>Edição</h2>
+          <div class="edit-group">
+            <label>Rotação:</label>
+            <input type="number" id="rotateAngle" value="0">
+            <button class="button-27" onclick="applyRotation()">Aplicar</button>
+          </div>
+          <div class="edit-group">
+            <label>Redim:</label>
+            <input type="number" id="resizeWidth" placeholder="Largura">
+            <input type="number" id="resizeHeight" placeholder="Altura">
+            <button class="button-27" onclick="applyResize()">Aplicar</button>
+          </div>
+          <div class="edit-group">
+            <label>Brilho:</label>
+            <input type="range" id="brightnessRange" min="0" max="200" value="100">
+          </div>
+          <div class="edit-group">
+            <label>Contraste:</label>
+            <input type="range" id="contrastRange" min="0" max="200" value="100">
+          </div>
+          <div class="edit-group">
+            <button class="button-27" onclick="applyFilters()">Ajustar</button>
+            <button class="button-27" onclick="resetFilter()">Reset Filtro</button>
+          </div>
+          <div class="edit-group">
+            <button class="button-27" onclick="applyFilter('grayscale')">P/B</button>
+            <button class="button-27" onclick="applyFilter('sepia')">Sépia</button>
+          </div>
+        </div>
+
+        <!-- Salvar -->
+        <div class="tool-section">
+          <h2>Salvar</h2>
+          <button id="reset">Restaurar Original</button>
+          <button class="button-27" onclick="saveToServer()">Salvar no Servidor</button>
+          <div id="serverDownloadLink"></div>
+          <p id="statusMsg"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
