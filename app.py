@@ -46,7 +46,9 @@ def upload():
     if file:
         try:
             img = Image.open(file.stream).convert("RGBA")
-            save_image(img)
+            save_image(img)  # Salva a imagem atual
+            # Salva uma cópia da imagem original
+            img.save(os.path.join(app.config["UPLOAD_FOLDER"], session["img_id"] + "_original.png"))
             return send_image()  # Retorna a imagem carregada diretamente
         except Exception as e:
             return f"Erro ao processar a imagem: {e}", 500
@@ -54,12 +56,16 @@ def upload():
 
 @app.route("/reset_image", methods=["POST"])
 def reset_image():
-    """Restaura a imagem original a partir da sessão."""
-    img = get_image()
-    if not img:
+    """Restaura a imagem original salva."""
+    if "img_id" not in session:
         return "Nenhuma imagem carregada", 400
-    # Retorna a imagem original
-    return send_image()
+    original_path = os.path.join(app.config["UPLOAD_FOLDER"], session["img_id"] + "_original.png")
+    if os.path.exists(original_path):
+        # Substitui a imagem atual pela original
+        current_path = os.path.join(app.config["UPLOAD_FOLDER"], session["img_id"] + ".png")
+        os.replace(original_path, current_path)
+        return send_file(current_path, mimetype="image/png")
+    return "Imagem original não encontrada", 404
 
 @app.route("/new", methods=["POST"])
 def new_image():

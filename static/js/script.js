@@ -11,6 +11,35 @@ let lineWidth = 2;
 let textValue = '';
 let originalImage = null;  // Guarda a imagem base
 
+// Pilha para armazenar os estados do canvas
+let undoStack = [];
+
+// Salva o estado atual do canvas na pilha
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+  if (undoStack.length > 20) {
+    // Limita o tamanho da pilha para evitar uso excessivo de memória
+    undoStack.shift();
+  }
+}
+
+// Função para desfazer a última ação
+function undo() {
+  if (undoStack.length === 0) {
+    alert("Nenhuma ação para desfazer.");
+    return;
+  }
+
+  // Remove o último estado da pilha e restaura o canvas
+  const previousState = undoStack.pop();
+  const img = new Image();
+  img.onload = function () {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = previousState;
+}
+
 // Referências a elementos do DOM
 const toolSelect = document.getElementById('toolSelect');
 const colorPicker = document.getElementById('colorPicker');
@@ -35,6 +64,7 @@ canvas.addEventListener('mouseleave', () => { drawing = false; });
 
 // Funções de desenho no canvas
 function onMouseDown(e) {
+  saveState(); // Salva o estado antes de começar a desenhar
   drawing = true;
   [startX, startY] = getMousePos(e);
   if (currentTool === 'text') {
@@ -104,14 +134,31 @@ document.getElementById("fileInput").addEventListener("change", function (event)
   reader.onload = function (e) {
     const img = new Image();
     img.onload = function () {
-      // Ajusta o tamanho do canvas para a imagem
-      canvas.width = img.width;
-      canvas.height = img.height;
+      // Limita o tamanho máximo da imagem
+      const maxWidth = 800;
+      const maxHeight = 600;
+      let width = img.width;
+      let height = img.height;
 
-      // Desenha a imagem no canvas
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa o canvas antes de desenhar
-      ctx.drawImage(img, 0, 0);
-      originalImage = img;  // Salva a imagem original para referência
+      if (width > maxWidth || height > maxHeight) {
+        const aspectRatio = width / height;
+        if (width > height) {
+          width = maxWidth;
+          height = Math.round(maxWidth / aspectRatio);
+        } else {
+          height = maxHeight;
+          width = Math.round(maxHeight * aspectRatio);
+        }
+      }
+
+      // Ajusta o tamanho do canvas
+      canvas.width = width;
+      canvas.height = height;
+
+      // Desenha a imagem redimensionada no canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, width, height);
+      originalImage = img; // Salva a imagem original para referência
     };
     img.src = e.target.result;
   };
@@ -130,107 +177,118 @@ function createNewImage() {
   originalImage = null;
 }
 
-// Restaura a imagem original
-function restoreOriginalImage() {
-  if (originalImage) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(originalImage, 0, 0);
-    updateOriginalImage();  // Atualiza a imagem original
-  } else {
-    alert("Nenhuma imagem original para restaurar.");
+// Restaura a imagem original do servidor
+async function restoreOriginalImage() {
+  try {
+    const response = await fetch('/reset_image', { method: 'POST' });
+    if (!response.ok) {
+      alert('Erro ao restaurar a imagem original.');
+      return;
+    }
+    const blob = await response.blob();
+    const img = new Image();
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      originalImage = img; // Atualiza a referência da imagem original
+    };
+    img.src = URL.createObjectURL(blob);
+  } catch (error) {
+    console.error('Erro ao restaurar a imagem:', error);
   }
 }
 
 // Função para aplicar filtros de brilho e contraste
 function applyFilters() {
-    let brightnessVal = brightnessRange.value / 100;
-    let contrastVal = contrastRange.value / 100;
-  
-    // Garantir que o valor do brilho e contraste esteja entre 0 e 2
-    brightnessVal = Math.min(Math.max(brightnessVal, 0), 2);
-    contrastVal = Math.min(Math.max(contrastVal, 0), 2);
-  
-    // Aplicando os filtros ao canvas
-    let filterStr = `brightness(${brightnessVal}) contrast(${contrastVal})`;
-    let tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    let tempCtx = tempCanvas.getContext('2d');
-    tempCtx.drawImage(canvas, 0, 0);
-    
-    // Limpar o canvas e aplicar os filtros
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.filter = filterStr;
-    ctx.drawImage(tempCanvas, 0, 0);
-    ctx.filter = 'none';  // Limpar o filtro para futuras edições
-    updateOriginalImage();  // Atualizar a imagem original
+  saveState(); // Salva o estado antes de aplicar filtros
+  let brightnessVal = brightnessRange.value / 100;
+  let contrastVal = contrastRange.value / 100;
+
+  brightnessVal = Math.min(Math.max(brightnessVal, 0), 2);
+  contrastVal = Math.min(Math.max(contrastVal, 0), 2);
+
+  let filterStr = `brightness(${brightnessVal}) contrast(${contrastVal})`;
+  let tempCanvas = document.createElement('canvas');
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+  let tempCtx = tempCanvas.getContext('2d');
+  tempCtx.drawImage(canvas, 0, 0);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.filter = filterStr;
+  ctx.drawImage(tempCanvas, 0, 0);
+  ctx.filter = 'none';
+  updateOriginalImage();
+}
+
+function applyFilter(filterType) {
+  let filterStr = '';
+  if (filterType === 'grayscale') {
+    filterStr = 'grayscale(100%)';
+  } else if (filterType === 'sepia') {
+    filterStr = 'sepia(100%)';
   }
 
-  function applyFilter(filterType) {
-    let filterStr = '';
-    if (filterType === 'grayscale') {
-      filterStr = 'grayscale(100%)';
-    } else if (filterType === 'sepia') {
-      filterStr = 'sepia(100%)';
-    }
-  
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.filter = filterStr;
-    ctx.drawImage(originalImage, 0, 0);
-    ctx.filter = 'none';
-    updateOriginalImage();  // Atualizar a imagem original
-  }
-  
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.filter = filterStr;
+  ctx.drawImage(originalImage, 0, 0);
+  ctx.filter = 'none';
+  updateOriginalImage();  // Atualizar a imagem original
+}
 
 function applyResize() {
-    let width = parseInt(document.getElementById('resizeWidth').value);
-    let height = parseInt(document.getElementById('resizeHeight').value);
-  
-    if (!originalImage || isNaN(width) || isNaN(height)) {
-      alert('Por favor, insira dimensões válidas.');
-      return;
-    }
-  
-    // Ajuste o tamanho do canvas e redimensione a imagem
-    canvas.width = width;
-    canvas.height = height;
-    
-    // Desenhar a imagem redimensionada no canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(originalImage, 0, 0, width, height);
-    updateOriginalImage();  // Atualizar a imagem original
+  saveState(); // Salva o estado antes de redimensionar
+  let width = parseInt(document.getElementById('resizeWidth').value);
+  let height = parseInt(document.getElementById('resizeHeight').value);
+
+  if (!originalImage || isNaN(width) || isNaN(height)) {
+    alert('Por favor, insira dimensões válidas.');
+    return;
   }
+
+  // Ajuste o tamanho do canvas e redimensione a imagem
+  canvas.width = width;
+  canvas.height = height;
+
+  // Desenhar a imagem redimensionada no canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(originalImage, 0, 0, width, height);
+  updateOriginalImage();  // Atualizar a imagem original
+}
 
 // Envio de imagem para rotação (exemplo de como pode ser feito)
 function applyRotation() {
-    let angle = parseInt(document.getElementById('rotateAngle').value);
-    if (!originalImage) {
-      alert('Nenhuma imagem carregada.');
-      return;
-    }
-  
-    // Criar uma nova canvas temporária para aplicar a rotação
-    let tempCanvas = document.createElement('canvas');
-    let tempCtx = tempCanvas.getContext('2d');
-    
-    // Ajustar o tamanho da canvas temporária conforme a rotação
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    
-    tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-    
-    // Aplicar a rotação
-    tempCtx.save();
-    tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-    tempCtx.rotate((angle * Math.PI) / 180);
-    tempCtx.drawImage(originalImage, -canvas.width / 2, -canvas.height / 2);
-    tempCtx.restore();
-  
-    // Atualizar o canvas principal
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(tempCanvas, 0, 0);
-    updateOriginalImage();  // Atualizar a imagem original
+  saveState(); // Salva o estado antes de rotacionar
+  let angle = parseInt(document.getElementById('rotateAngle').value);
+  if (!originalImage) {
+    alert('Nenhuma imagem carregada.');
+    return;
   }
+
+  // Criar uma nova canvas temporária para aplicar a rotação
+  let tempCanvas = document.createElement('canvas');
+  let tempCtx = tempCanvas.getContext('2d');
+
+  // Ajustar o tamanho da canvas temporária conforme a rotação
+  tempCanvas.width = canvas.width;
+  tempCanvas.height = canvas.height;
+
+  tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+  // Aplicar a rotação
+  tempCtx.save();
+  tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
+  tempCtx.rotate((angle * Math.PI) / 180);
+  tempCtx.drawImage(originalImage, -canvas.width / 2, -canvas.height / 2);
+  tempCtx.restore();
+
+  // Atualizar o canvas principal
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(tempCanvas, 0, 0);
+  updateOriginalImage();  // Atualizar a imagem original
+}
 
 // Atualiza originalImage para refletir o estado atual do canvas
 function updateOriginalImage() {
@@ -276,3 +334,21 @@ document.getElementById('reset').addEventListener('click', restoreOriginalImage)
 // Aplicação de rotação, redimensionamento e filtros
 document.getElementById('applyRotation').addEventListener('click', applyRotation);
 document.getElementById('applyResize').addEventListener('click', applyResize);
+
+function resetFilter() {
+  if (!originalImage) {
+    alert("Nenhuma imagem carregada para resetar.");
+    return;
+  }
+
+  // Limpa o canvas e redesenha a imagem original
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(originalImage, 0, 0);
+
+  // Reseta os valores dos controles de brilho e contraste
+  brightnessRange.value = 100;
+  contrastRange.value = 100;
+
+  // Atualiza a imagem original no estado atual
+  updateOriginalImage();
+}

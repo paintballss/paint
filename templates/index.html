@@ -67,7 +67,7 @@
           </div>
           <div class="edit-group">
             <button class="button-27" onclick="applyFilters()">Ajustar</button>
-            <button class="button-27" onclick="resetFilter()">Reset Filtro</button>
+            <button class="button-27" onclick="resetFilter()">Resetar Filtro</button>
           </div>
           <div class="edit-group">
             <button class="button-27" onclick="applyFilter('grayscale')">P/B</button>
@@ -75,10 +75,16 @@
           </div>
         </div>
 
+        <!-- Desfazer -->
+        <div class="tool-section">
+          <h2>Desfazer</h2>
+          <button class="button-27" onclick="undo()">Desfazer</button>
+        </div>
+
         <!-- Salvar -->
         <div class="tool-section">
           <h2>Salvar</h2>
-          <button id="reset">Restaurar Original</button>
+          <button id="reset" class="button-27" onclick="restoreOriginalImage()">Restaurar Original</button>
           <button class="button-27" onclick="saveToServer()">Salvar no Servidor</button>
           <div id="serverDownloadLink"></div>
           <p id="statusMsg"></p>
