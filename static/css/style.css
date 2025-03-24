@@ -8,8 +8,8 @@
 /* Corpo e container principal */
 body {
   font-family: 'Roboto', Arial, sans-serif;
-  background: #f4f4f9; /* Fundo claro */
-  color: #333; /* Texto escuro */
+  background: #ffffff; /* Fundo branco */
+  color: #000; /* Texto preto */
   line-height: 1.6;
   font-size: 16px;
   transition: all 0.3s ease-in-out;
@@ -24,6 +24,11 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  transition: transform 0.3s ease-in-out;
+}
+
+.container:hover {
+  transform: scale(1.02);
 }
 
 /* Título */
@@ -31,8 +36,13 @@ h1 {
   text-align: center;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #007bff; /* Azul moderno */
+  color: #000; /* Preto */
   margin-bottom: 20px;
+  transition: color 0.3s ease-in-out;
+}
+
+h1:hover {
+  color: #333; /* Cinza escuro */
 }
 
 /* Layout principal em duas colunas */
@@ -46,10 +56,15 @@ h1 {
 /* Painel Esquerdo (Canvas) */
 .left-panel {
   flex: 2;
-  background: #f9f9f9;
+  background: #f4f4f4; /* Cinza claro */
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: background 0.3s ease-in-out;
+}
+
+.left-panel:hover {
+  background: #e0e0e0; /* Cinza mais escuro */
 }
 
 /* Canvas */
@@ -59,13 +74,18 @@ h1 {
 }
 
 canvas {
-  border: 1px solid #ddd;
+  border: 1px solid #000; /* Preto */
   background-color: #ffffff;
   width: 100%;
   max-width: 800px;
   height: auto;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+canvas:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .download-area {
@@ -94,6 +114,7 @@ canvas {
 
 .button-27:hover {
   background: #333; /* Cinza escuro ao passar o mouse */
+  transform: scale(1.05);
 }
 
 .button-27:disabled {
@@ -104,22 +125,23 @@ canvas {
 
 /* Botões de "Escolher Arquivo" e "Restaurar Imagem" */
 input[type="file"] {
-  background: #f9f9f9;
-  color: #333;
+  background: #f4f4f4; /* Cinza claro */
+  color: #000; /* Preto */
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #000; /* Preto */
   border-radius: 5px;
   width: 100%;
   font-size: 14px;
   cursor: pointer;
+  transition: border-color 0.3s ease-in-out;
 }
 
 input[type="file"]:hover {
-  border-color: #007bff;
+  border-color: #333; /* Cinza escuro */
 }
 
 #reset {
-  background: #dc3545;
+  background: #000; /* Preto */
   color: white;
   font-weight: bold;
   padding: 10px 20px;
@@ -130,7 +152,8 @@ input[type="file"]:hover {
 }
 
 #reset:hover {
-  background: #c82333;
+  background: #333; /* Cinza escuro ao passar o mouse */
+  transform: scale(1.05);
 }
 
 /* Painel Direito (Ferramentas) */
@@ -143,6 +166,11 @@ input[type="file"]:hover {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  transition: background 0.3s ease-in-out;
+}
+
+.right-panel:hover {
+  background: #f4f4f4; /* Cinza claro */
 }
 
 /* Seção de Ferramentas */
@@ -151,13 +179,23 @@ input[type="file"]:hover {
   border-radius: 5px;
   padding: 15px;
   box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.tool-section:hover {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .tool-section h2 {
   font-size: 1.2rem;
-  color: #007bff;
+  color: #000; /* Preto */
   font-weight: 600;
   margin-bottom: 10px;
+  transition: color 0.3s ease-in-out;
+}
+
+.tool-section h2:hover {
+  color: #333; /* Cinza escuro */
 }
 
 /* Grupos de entrada e controles */
@@ -180,17 +218,18 @@ input[type="file"]:hover {
 .edit-group input[type="range"],
 .edit-group select {
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #000; /* Preto */
   border-radius: 5px;
   width: 100%;
   font-size: 14px;
-  background: #f9f9f9;
-  color: #333;
+  background: #f4f4f4; /* Cinza claro */
+  color: #000; /* Preto */
+  transition: border-color 0.3s ease-in-out;
 }
 
 .edit-group input:focus,
 .edit-group select:focus {
-  border-color: #007bff;
+  border-color: #333; /* Cinza escuro */
   outline: none;
 }
 
@@ -205,14 +244,15 @@ input[type="file"]:hover {
 /* Área de download */
 #serverDownloadLink {
   font-size: 14px;
-  color: #007bff;
+  color: #000; /* Preto */
   margin-top: 10px;
   font-weight: 500;
   text-decoration: underline;
+  transition: color 0.3s ease-in-out;
 }
 
 #serverDownloadLink:hover {
-  color: #0056b3;
+  color: #333; /* Cinza escuro */
 }
 
 /* Responsividade para dispositivos menores */
