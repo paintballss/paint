@@ -260,34 +260,32 @@ function applyResize() {
 
 // Envio de imagem para rotação (exemplo de como pode ser feito)
 function applyRotation() {
-  saveState(); // Salva o estado antes de rotacionar
   let angle = parseInt(document.getElementById('rotateAngle').value);
   if (!originalImage) {
-    alert('Nenhuma imagem carregada.');
-    return;
+      alert('Nenhuma imagem carregada.');
+      return;
   }
 
-  // Criar uma nova canvas temporária para aplicar a rotação
+  // Criar um canvas temporário para salvar os desenhos atuais
   let tempCanvas = document.createElement('canvas');
   let tempCtx = tempCanvas.getContext('2d');
 
-  // Ajustar o tamanho da canvas temporária conforme a rotação
   tempCanvas.width = canvas.width;
   tempCanvas.height = canvas.height;
+  tempCtx.drawImage(canvas, 0, 0); // Copia o conteúdo atual (imagem + desenhos)
 
-  tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-  // Aplicar a rotação
-  tempCtx.save();
-  tempCtx.translate(tempCanvas.width / 2, tempCanvas.height / 2);
-  tempCtx.rotate((angle * Math.PI) / 180);
-  tempCtx.drawImage(originalImage, -canvas.width / 2, -canvas.height / 2);
-  tempCtx.restore();
-
-  // Atualizar o canvas principal
+  // Ajustar rotação
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(tempCanvas, 0, 0);
-  updateOriginalImage();  // Atualizar a imagem original
+  ctx.save();
+
+  // Mover a origem para o centro antes de rotacionar
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  ctx.rotate((angle * Math.PI) / 180);
+
+  // Redesenhar a imagem e os desenhos mantendo a posição correta
+  ctx.drawImage(tempCanvas, -canvas.width / 2, -canvas.height / 2);
+
+  ctx.restore();
 }
 
 // Atualiza originalImage para refletir o estado atual do canvas
@@ -341,9 +339,13 @@ function resetFilter() {
     return;
   }
 
+  // Ajusta o tamanho do canvas para o tamanho original da imagem
+  canvas.width = originalImage.width;
+  canvas.height = originalImage.height;
+
   // Limpa o canvas e redesenha a imagem original
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(originalImage, 0, 0);
+  ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
 
   // Reseta os valores dos controles de brilho e contraste
   brightnessRange.value = 100;
