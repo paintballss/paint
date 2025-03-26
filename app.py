@@ -16,7 +16,15 @@ if not os.path.exists(app.config["UPLOAD_FOLDER"]):
     os.makedirs(app.config["UPLOAD_FOLDER"])
 
 def get_image():
-    """Retorna a imagem atual (Pillow Image) baseada no 'img_id' da sessão."""
+    """
+    Retorna a imagem atual (Pillow Image) baseada no 'img_id' da sessão.
+    
+    A função verifica se existe um 'img_id' na sessão. Se existir, tenta abrir a imagem correspondente
+    no diretório de upload. Caso contrário, retorna None.
+
+    Returns:
+        Image: A imagem atual se existir, caso contrário, None.
+    """
     if "img_id" not in session:
         return None
     img_path = os.path.join(app.config["UPLOAD_FOLDER"], session["img_id"] + ".png")
@@ -28,7 +36,18 @@ def get_image():
     return None
 
 def save_image(img):
-    """Salva a imagem (Pillow Image) na pasta temp e atualiza a sessão."""
+    """
+    Salva a imagem (Pillow Image) na pasta temp e atualiza a sessão.
+    
+    A função gera um 'img_id' único se não existir na sessão, salva a imagem no diretório de upload
+    e atualiza a sessão com o 'img_id'.
+
+    Args:
+        img (Image): A imagem a ser salva.
+    
+    Returns:
+        str: O caminho da imagem salva.
+    """
     img_id = session.get("img_id", str(uuid.uuid4()))
     session["img_id"] = img_id
     img_path = os.path.join(app.config["UPLOAD_FOLDER"], img_id + ".png")
@@ -37,11 +56,27 @@ def save_image(img):
 
 @app.route("/")
 def index():
+    """
+    Renderiza a página inicial do editor de imagens.
+    
+    A função renderiza o template HTML da página inicial.
+
+    Returns:
+        str: O conteúdo HTML da página inicial.
+    """
     return render_template("index.html")
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    """Carrega uma imagem do dispositivo e a salva como PNG."""
+    """
+    Carrega uma imagem do dispositivo e a salva como PNG.
+    
+    A função recebe uma imagem do formulário, converte para RGBA, salva a imagem atual e uma cópia
+    da imagem original no diretório de upload.
+
+    Returns:
+        Response: A imagem carregada ou uma mensagem de erro.
+    """
     file = request.files.get("image")
     if file:
         try:
@@ -56,7 +91,14 @@ def upload():
 
 @app.route("/reset_image", methods=["POST"])
 def reset_image():
-    """Restaura a imagem original salva."""
+    """
+    Restaura a imagem original salva.
+    
+    A função substitui a imagem atual pela imagem original salva no diretório de upload.
+
+    Returns:
+        Response: A imagem original ou uma mensagem de erro.
+    """
     if "img_id" not in session:
         return "Nenhuma imagem carregada", 400
     original_path = os.path.join(app.config["UPLOAD_FOLDER"], session["img_id"] + "_original.png")
@@ -69,7 +111,15 @@ def reset_image():
 
 @app.route("/new", methods=["POST"])
 def new_image():
-    """Cria uma nova imagem em branco."""
+    """
+    Cria uma nova imagem em branco.
+    
+    A função cria uma nova imagem em branco com as dimensões especificadas no formulário e salva
+    no diretório de upload.
+
+    Returns:
+        str: Mensagem de confirmação da criação da nova imagem.
+    """
     width = int(request.form.get("width", 800))
     height = int(request.form.get("height", 600))
     img = Image.new("RGBA", (width, height), (255, 255, 255, 255))
@@ -78,7 +128,14 @@ def new_image():
 
 @app.route("/resize", methods=["POST"])
 def resize():
-    """Redimensiona a imagem."""
+    """
+    Redimensiona a imagem.
+    
+    A função redimensiona a imagem atual para as novas dimensões especificadas no formulário.
+
+    Returns:
+        Response: A imagem redimensionada ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -90,7 +147,14 @@ def resize():
 
 @app.route("/rotate", methods=["POST"])
 def rotate():
-    """Rotaciona a imagem."""
+    """
+    Rotaciona a imagem.
+    
+    A função rotaciona a imagem atual pelo número de graus especificado no formulário.
+
+    Returns:
+        Response: A imagem rotacionada ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -101,7 +165,14 @@ def rotate():
 
 @app.route("/adjust", methods=["POST"])
 def adjust():
-    """Ajusta brilho e contraste."""
+    """
+    Ajusta brilho e contraste da imagem.
+    
+    A função ajusta o brilho e o contraste da imagem atual com os valores especificados no formulário.
+
+    Returns:
+        Response: A imagem ajustada ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -117,7 +188,14 @@ def adjust():
 
 @app.route("/filter", methods=["POST"])
 def apply_filter():
-    """Aplica filtro (grayscale, sepia)."""
+    """
+    Aplica filtro (grayscale, sepia) à imagem.
+    
+    A função aplica o filtro especificado no formulário (grayscale ou sepia) à imagem atual.
+
+    Returns:
+        Response: A imagem com o filtro aplicado ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -143,7 +221,14 @@ def apply_filter():
 
 @app.route("/add_text", methods=["POST"])
 def add_text():
-    """Adiciona texto à imagem."""
+    """
+    Adiciona texto à imagem.
+    
+    A função adiciona o texto especificado no formulário à imagem atual nas coordenadas especificadas.
+
+    Returns:
+        Response: A imagem com o texto adicionado ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -163,7 +248,15 @@ def add_text():
 
 @app.route("/add_shape", methods=["POST"])
 def add_shape():
-    """Desenha linha, círculo ou retângulo."""
+    """
+    Desenha linha, círculo ou retângulo na imagem.
+    
+    A função desenha a forma especificada no formulário (linha, círculo ou retângulo) na imagem atual
+    com as coordenadas e dimensões especificadas.
+
+    Returns:
+        Response: A imagem com a forma desenhada ou uma mensagem de erro.
+    """
     img = get_image()
     if not img:
         return "Nenhuma imagem carregada", 400
@@ -196,7 +289,14 @@ def add_shape():
 
 @app.route("/image")
 def get_current_image():
-    """Retorna a imagem atual."""
+    """
+    Retorna a imagem atual.
+    
+    A função retorna a imagem atual salva no diretório de upload.
+
+    Returns:
+        Response: A imagem atual ou uma mensagem de erro.
+    """
     img_path = os.path.join(app.config["UPLOAD_FOLDER"], session.get("img_id", "") + ".png")
     if os.path.exists(img_path):
         return send_file(img_path, mimetype="image/png")
@@ -204,22 +304,40 @@ def get_current_image():
 
 @app.route("/download")
 def download():
-    """Baixa a imagem atual."""
+    """
+    Baixa a imagem atual.
+    
+    A função permite o download da imagem atual salva no diretório de upload.
+
+    Returns:
+        Response: A imagem atual para download ou uma mensagem de erro.
+    """
     img_path = os.path.join(app.config["UPLOAD_FOLDER"], session.get("img_id", "") + ".png")
     if os.path.exists(img_path):
         return send_file(img_path, as_attachment=True)
     return "Nenhuma imagem encontrada", 404
 
 def send_image():
-    """Função auxiliar para retornar a imagem atual."""
+    """
+    Função auxiliar para retornar a imagem atual.
+    
+    A função retorna a imagem atual salva no diretório de upload.
+
+    Returns:
+        Response: A imagem atual.
+    """
     img_path = os.path.join(app.config["UPLOAD_FOLDER"], session.get("img_id", "") + ".png")
     return send_file(img_path, mimetype="image/png")
 
 @app.route("/save_image", methods=["POST"])
 def save_image_to_server():
     """
-    Exemplo opcional: se quiser salvar o canvas (em base64) do frontend
-    sem usar Pillow, mas apenas armazenando em disco.
+    Salva a imagem do canvas (em base64) do frontend no servidor.
+    
+    A função decodifica a imagem em base64 recebida do formulário e salva no diretório de upload.
+
+    Returns:
+        str: O nome do ficheiro salvo ou uma mensagem de erro.
     """
     data_url = request.form.get("image_data")
     if not data_url:
